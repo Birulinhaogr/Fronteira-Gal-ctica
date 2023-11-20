@@ -1,0 +1,53 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class TIrodaGosma : MonoBehaviour
+{
+    public float velocidadeMovimento = 5f, destroyDelay = 10f; // Velocidade de movimento do objeto
+    public int dano = 15; // Dano causado ao jogador
+
+    private Transform jogador; // Referência ao transform do jogador
+
+    private void Start()
+    {
+        // Encontra o jogador no início do jogo
+        jogador = GameObject.FindGameObjectWithTag("Player").transform;
+
+        // Certifique-se de que o jogador foi encontrado antes de prosseguir
+        if (jogador == null)
+        {
+            Debug.LogError("Jogador não encontrado!");
+        }
+        Invoke("DestroyObject", destroyDelay);
+    }
+
+    private void Update()
+    {
+        // Move o objeto na direção do jogador
+        transform.position = Vector3.MoveTowards(transform.position, jogador.position, velocidadeMovimento * Time.deltaTime);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        // Verifica se o objeto colidiu com o jogador
+        if (other.CompareTag("Player"))
+        {
+            // Obtém o componente de saúde do jogador (substitua "PlayerHealth" pelo nome do seu script de saúde do jogador)
+            PlayerHealth playerHealth = other.GetComponent<PlayerHealth>();
+
+            // Causa dano ao jogador se o componente de saúde for encontrado
+            if (playerHealth != null)
+            {
+                playerHealth.TakeDamage(dano);
+            }
+
+            // Destroi o objeto após causar dano
+            Destroy(gameObject);
+        }
+    }
+      void Destroy()
+    {
+        Destroy(gameObject);
+    }
+}
