@@ -1,0 +1,57 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using static UnityStandardAssets.Utility.TimedObjectActivator;
+
+public class RoundManager : MonoBehaviour
+{
+    public GameObject[] enemyPrefab;
+    public Transform spawnPoints;
+    public float timeBetweenRounds = 10f;
+    public int numberOfRounds = 5;
+    public float activationRadius = 10f;
+
+    private bool roundsActivated = false;
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player") && !roundsActivated)
+        {
+            roundsActivated = true;
+            StartCoroutine(SpawnRounds());
+        }
+    }
+
+    IEnumerator SpawnRounds()
+    {
+        for (int round = 0; round < numberOfRounds; round++)
+        {
+            ActivateEnemies();
+            yield return new WaitForSeconds(timeBetweenRounds);
+        }
+    }
+
+    private void ActivateEnemies()
+    {
+        foreach (GameObject enemyPrefab in enemyPrefab)
+        {
+            // Instancia o inimigo no ponto de spawn
+            GameObject enemy = Instantiate(enemyPrefab, GetRandomSpawnPosition(), Quaternion.identity);
+
+            // Ajusta a escala, rotação, ou faça outras configurações se necessário
+            // enemy.transform.localScale = new Vector3(1, 1, 1);
+            // enemy.transform.rotation = Quaternion.Euler(0, 0, 0);
+        }
+    }
+    private Vector3 GetRandomSpawnPosition()
+    {
+        // Gera uma posição aleatória dentro do raio de ativação
+        Vector2 randomCircle = Random.insideUnitCircle * activationRadius;
+        Vector3 spawnPosition = new Vector3(randomCircle.x, 0f, randomCircle.y);
+
+        // Adiciona a posição do ponto de spawn
+        spawnPosition += spawnPoints.position;
+
+        return spawnPosition;
+    }
+}
